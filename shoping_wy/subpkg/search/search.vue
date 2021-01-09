@@ -4,7 +4,7 @@
     <uni-search-bar @input="input" :radius="100" cancelButton="none"></uni-search-bar>
     <!-- 搜索建议列表 -->
     <view class="sugg-list" v-if="searchResults.length !== 0">
-      <view class="sugg-item" v-for="(item, i) in searchResults" :key="i" @click="gotoDetail(item.goods_id)">
+      <view class="sugg-item" v-for="(item, i) in searchResults" :key="i" @click="gotoDetail(item)">
         <view class="goods-name">{{item.goods_name}}</view>
         <uni-icons type="arrowright" size="16"></uni-icons>
       </view>
@@ -71,10 +71,10 @@
         //  查询到搜索建议之后，调用 saveSearchHistory() 方法保存搜索关键词
         this.saveSearchHistory()
       },
-      gotoDetail(goods_id) {
+      gotoDetail(item) {
         uni.navigateTo({
           // 指定详情页面的 URL 地址，并传递 goods_id 参数
-          url: '/subpkg/goods_detail/goods_detail?goods_id=' + goods_id
+          url: '/subpkg/goods-detail/goods-detail?goods_id=' + item.goods_id
         })
       },
       saveSearchHistory() {
