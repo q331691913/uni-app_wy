@@ -1,8 +1,8 @@
 <template>
   <view>
     <view class="goods-list">
-      <view v-for="(goods, i) in goodsList" :key="i"  @click="gotoDetail(item)">
-        <my-goods :goods="goods"></my-goods>
+      <view v-for="(item, i) in goodsList" :key="i"  @click="gotoDetail(item)">
+        <my-goods :goods="item"></my-goods>
       </view>
     </view>
   </view>
