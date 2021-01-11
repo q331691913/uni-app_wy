@@ -22,7 +22,7 @@
         </view>
       </view>
       <!-- 运费 -->
-      <view class="yf">快递：免运费</view>
+      <view class="yf">快递：免运费{{cart.length}}</view>
     </view>
     <!-- 商品详情信息 -->
     <rich-text :nodes="goods_info.goods_introduce"></rich-text>
@@ -39,8 +39,35 @@
 </template>
 
 <script>
+  import {
+    mapState,
+    mapMutations,
+    mapGetters
+  } from 'vuex'
   export default {
-    data() {
+    computed: {
+      // 调用 mapState 方法，把 m_cart 模块中的 cart 数组映射到当前页面中，作为计算属性来使用
+      // ...mapState('模块的名称', ['要映射的数据名称1', '要映射的数据名称2'])
+      ...mapState('m_cart', []),
+      ...mapGetters('m_cart', ['total']),
+
+    },
+    watch: {
+      // 使用普通函数的形式定义的 watch 侦听器，在页面首次加载后不会被调用。因此导致了商品详情页在首次加载完毕之后，不会将商品的总数量显示到商品导航区域：为了防止这个上述问题，可以使用对象的形式来定义 watch 侦听器（详细文档请参考 Vue 官方的 watch 侦听器教程），示例代码如下
+      // 1. 监听 total 值的变化，通过第一个形参得到变化后的新值
+      total: {
+            // handler 属性用来定义侦听器的 function 处理函数
+            handler(newVal) {
+               const findResult = this.options.find(x => x.text === '购物车')
+               if (findResult) {
+                  findResult.info = newVal
+               }
+            },
+            // immediate 属性用来声明此侦听器，是否在页面初次加载完毕后立即调用
+            immediate: true
+         }
+  },
+  data() {
       return {
         // 商品详情对象
         goods_info: {},
@@ -51,7 +78,7 @@
         }, {
           icon: 'cart',
           text: '购物车',
-          info: 2
+          info: 0
         }],
         // 右侧按钮组的配置对象
         buttonGroup: [{
@@ -74,6 +101,7 @@
       this.getGoodsDetail(goods_id)
     },
     methods: {
+      ...mapMutations('m_cart', ['addToCart']),
       // 定义请求商品详情数据的方法
       async getGoodsDetail(goods_id) {
         const {
@@ -101,14 +129,29 @@
       },
       // 左侧按钮点击事件
       onClick(e) {
-         if (e.content.text === '购物车') {
-            // 切换到购物车页面
-            uni.switchTab({
-              url: '/pages/cart/cart'
-            })
+        if (e.content.text === '购物车') {
+          // 切换到购物车页面
+          uni.switchTab({
+            url: '/pages/cart/cart'
+          })
+        }
+      },
+      buttonClick(e) {
+        if (e.content.text === '加入购物车') {
+          const goods = {
+            goods_id: this.goods_info.goods_id, // 商品的Id
+            goods_name: this.goods_info.goods_name, // 商品的名称
+            goods_price: this.goods_info.goods_price, // 商品的价格
+            goods_count: 1, // 商品的数量
+            goods_small_logo: this.goods_info.goods_small_logo, // 商品的图片
+            goods_state: true // 商品的勾选状态
           }
+          // 调用addTocart
+          this.addToCart(goods)
+        }
       }
-    }
+    },
+
   }
 </script>
 
@@ -162,12 +205,13 @@
       color: gray;
     }
   }
+
   .goods-detail-container {
     // 给页面外层的容器，添加 50px 的内padding，
     // 防止页面内容被底部的商品导航组件遮盖
     padding-bottom: 50px;
   }
-  
+
   .goods_nav {
     // 为商品导航组件添加固定定位
     position: fixed;

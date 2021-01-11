@@ -33,7 +33,9 @@
 </template>
 
 <script>
+  import badgeMix from '@/minxins/tabbar-badge.js'  
 	export default {
+    minxins:[badgeMix],
 		data() {
 			return {
 				// 当前设备可用的高度
